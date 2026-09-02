@@ -4,15 +4,23 @@ WORKDIR /app
 
 COPY requirements.txt .
 
-RUN pip install --no-cache-dir -r requirements.txt
+# CPU-only PyTorch
+RUN pip install --no-cache-dir \
+    torch==2.3.1 \
+    --index-url https://download.pytorch.org/whl/cpu
 
-COPY app ./app
-COPY data ./data
-COPY capability_names.json .
-COPY capability_embeddings.npy .
+RUN pip install --no-cache-dir \
+    fastapi \
+    uvicorn \
+    sentence-transformers \
+    transformers \
+    numpy \
+    pandas \
+    scikit-learn \
+    huggingface_hub
 
-ENV PORT=8000
+COPY . .
 
 EXPOSE 8000
 
-CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT}
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
